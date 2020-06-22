@@ -5,7 +5,7 @@ from flask import Flask,request,render_template
 from flask_socketio import SocketIO
 import os
 import cv2
-
+from base64 import b64encode
 
 app = Flask(__name__)
 socketio = SocketIO(app,async_mode="eventlet",async_handlers=True,cookie=None)
@@ -20,6 +20,14 @@ def load_log_files():
     socketio.emit("skt_load_file_response",{"files":files})
 
 #take file name, search image, convert and send
+
+@socketio.on("skt_selected_image")
+def selected_image(msg):
+    img = cv2.imread(r"C:\Users\Amit\Desktop\suraj_poc\logged_images\\"+msg["img_name"])
+    _, photoJpeg = cv2.imencode('.jpg', img)
+    strPhotoJpeg = b64encode(photoJpeg).decode('utf-8')
+    socketio.emit("skt_show_image",{"image":strPhotoJpeg})
+
     
 
 
